@@ -1,0 +1,26 @@
+import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
+
+const axiosClient = axios.create({
+  baseURL: 'https://fakestoreapi.com',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+axiosClient.interceptors.request.use(
+  function (config: InternalAxiosRequestConfig) {
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+axiosClient.interceptors.response.use(
+  function (response: AxiosResponse) {
+    return response.data;
+  },
+  function (error) {
+    return Promise.reject(error);
+  }
+);
+
+export default axiosClient;
