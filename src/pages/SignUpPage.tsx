@@ -1,14 +1,16 @@
+import { isEmpty } from '@firebase/util';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material';
-import Authentication from '../components/Common/Authentication';
 import { createUserWithEmailAndPassword, updateProfile, User } from 'firebase/auth';
-import { addDoc, collection } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { toast, ToastContent } from 'react-toastify';
+import slugify from 'slugify';
 import * as yup from 'yup';
 import { Button } from '../components/button';
+import Authentication from '../components/Common/Authentication';
 import { Field } from '../components/field';
 import { Input } from '../components/input';
 import { Label } from '../components/label';
@@ -18,6 +20,15 @@ export type FormDataInput = {
   fullname: string;
   email: string;
   password: string;
+  title: string;
+  slug: string;
+  status: string | number;
+  categoryId: string;
+  author: string;
+  image: File | string;
+  image_name: string;
+  hot: boolean;
+  name: string;
 };
 
 const scheme = yup.object({
@@ -48,18 +59,28 @@ const SignUpPage = () => {
   const onSubmit = handleSubmit(async (values) => {
     console.log(values);
     if (!isValid) return;
-    const user = await createUserWithEmailAndPassword(auth, values.email, values.password);
-    await updateProfile(auth.currentUser as User, {
-      displayName: values.fullname,
-    });
-    const colRef = collection(db, 'users');
-    await addDoc(colRef, {
-      name: values.fullname,
-      email: values.email,
-      password: values.password,
-    });
-    toast.success('Register successfully');
-    navigate('/sign-in');
+    await createUserWithEmailAndPassword(auth, values.email, values.password)
+      .then(async () => {
+        await updateProfile(auth.currentUser as User, {
+          displayName: values.fullname,
+        });
+        await setDoc(doc(db, 'users', auth.currentUser?.uid as any), {
+          name: values.fullname,
+          email: values.email,
+          password: values.password,
+          username: slugify(values.fullname, { lower: true }),
+        });
+        toast.success('Register successfully');
+        navigate('/sign-in');
+      })
+      .catch(function (error) {
+        const messageErr = error.code.slice(5).replace(/-/g, ' ');
+        if (isEmpty(error.code) === false) {
+          toast.error(messageErr.charAt(0).toUpperCase() + messageErr.slice(1), {
+            pauseOnHover: false,
+          });
+        }
+      });
   });
 
   useEffect(() => {
@@ -132,6 +153,7 @@ const SignUpPage = () => {
           }}
           isLoading={isSubmitting}
           disabled={isSubmitting}
+          to=""
         >
           Submit
         </Button>

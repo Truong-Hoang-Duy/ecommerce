@@ -1,5 +1,11 @@
+import { collection, doc, getDoc, query, where } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
+import slugify from 'slugify';
 import styled from 'styled-components';
+import { CategoriesType, PostsType, UserType } from '../../components/Common/types';
+import { db } from '../../firebase-app/firebase-config';
 import PostCategory from './PostCategory';
+import PostImage from './PostImage';
 import PostMeta from './PostMeta';
 import PostTitle from './PostTitle';
 
@@ -12,7 +18,6 @@ const PostFeatureItemStyles = styled.div`
     &-image {
       width: 100%;
       height: 100%;
-      object-fit: cover;
       border-radius: 16px;
     }
     &-overlay {
@@ -47,22 +52,51 @@ const PostFeatureItemStyles = styled.div`
   }
 `;
 
-const PostFeatureItem = () => {
+const PostFeatureItem = ({ data }: { data: PostsType }) => {
+  const [category, setCategory] = useState<CategoriesType>();
+  const [user, setUser] = useState<UserType>();
+  const date = new Date(data?.createdAt?.seconds * 1000);
+  const formatDate = new Date(date).toLocaleDateString('vi-VI');
+
+  useEffect(() => {
+    async function fetch() {
+      const docRef = doc(db, 'categories', data.categoryId);
+      const docSnap = await getDoc(docRef);
+      setCategory(docSnap.data() as CategoriesType);
+    }
+    fetch();
+  }, []);
+
+  useEffect(() => {
+    async function fetchUser() {
+      if (data.userId) {
+        const docRef = doc(db, 'users', data.userId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.data) {
+          setUser(docSnap.data() as UserType);
+        }
+      }
+    }
+    fetchUser();
+  }, []);
+
+  if (!data || !data.id) return null;
   return (
     <PostFeatureItemStyles>
-      <img
-        src="https://cdn.shortpixel.ai/spai2/w_1570+q_lossless+ret_img+to_webp/https://zofal.vn/wp-content/uploads/2023/01/trang-phuc-cuoi-nam.jpg"
-        alt="unsplash"
-        className="post-image"
-      />
+      <PostImage url={data.image} alt="clothes"></PostImage>
+
       <div className="post-overlay"></div>
       <div className="post-content">
         <div className="post-top">
-          <PostCategory>Kiến thức</PostCategory>
-          <PostMeta></PostMeta>
+          {category?.name && <PostCategory to={category.slug}>{category?.name}</PostCategory>}
+          <PostMeta
+            to={slugify((user?.name as any) || '', { lower: true })}
+            authorName={user?.name}
+            date={formatDate}
+          ></PostMeta>
         </div>
-        <PostTitle size="big">
-          5 mẫu áo khoác nữ mùa đông đẹp dễ mặc không thể thiếu trong tủ đồ
+        <PostTitle to={`post/${data.slug}`} size="big">
+          {data.title}
         </PostTitle>
       </div>
     </PostFeatureItemStyles>

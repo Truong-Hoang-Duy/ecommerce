@@ -1,5 +1,5 @@
-import { FormDataInput } from 'pages/SignUpPage';
 import { Control, FieldValues } from 'react-hook-form';
+import { FormDataInput } from '../../pages/SignUpPage';
 
 export interface PropsStyledInput {
   hasIcon?: boolean;

@@ -24,7 +24,12 @@ import { useEffect } from 'react';
 const TopBar = () => {
   const user = useAppSelector((state) => state.auth);
   const pages = ['Products', 'Blog', 'Contact'];
-  const settings = [`Welcome ${user.currentUser?.displayName}`, 'Account', 'Logout'];
+  const settings = [
+    `Welcome, ${user.currentUser?.displayName}`,
+    'Account',
+    'Management Post',
+    'Logout',
+  ];
   const features = ['Log in', 'Log out'];
 
   const [anchorElNav, setAnchorElNav] = useState<EventTarget | null>(null);
@@ -49,7 +54,9 @@ const TopBar = () => {
         signOut(auth);
         dispatch(authActions.logout());
         break;
-
+      case 'Management Post':
+        navigate('dashboard');
+        break;
       default:
         break;
     }
@@ -213,13 +220,14 @@ const TopBar = () => {
                     {settings.map((setting) => (
                       <MenuItem key={setting} onClick={handleCloseUserMenu}>
                         {setting.includes('Welcome') ? (
-                          <Typography
+                          <Button
                             sx={{
                               color: 'red',
+                              cursor: 'default',
                             }}
                           >
                             {setting}
-                          </Typography>
+                          </Button>
                         ) : (
                           <Button
                             onClick={() => handleClickNavMenu(setting)}

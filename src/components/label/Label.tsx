@@ -8,7 +8,7 @@ const LabelStyles = styled.label`
 `;
 
 type Props = {
-  htmlFor: string;
+  htmlFor?: string;
   children: JSX.Element | string;
 };
 

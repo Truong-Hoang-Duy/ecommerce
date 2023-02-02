@@ -120,6 +120,7 @@ const SignInPage = () => {
           }}
           isLoading={isSubmitting}
           disabled={isSubmitting}
+          to=""
         >
           Submit
         </Button>

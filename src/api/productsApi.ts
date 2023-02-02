@@ -1,4 +1,4 @@
-import { Products } from 'models';
+import { Products } from '../models';
 import axiosClient from './axiosClient';
 
 const productsApi = {

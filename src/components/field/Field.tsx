@@ -12,7 +12,7 @@ const FieldStyles = styled.div`
   }
 `;
 
-const Field = ({ children }: { children: JSX.Element[] | JSX.Element }) => {
+const Field = ({ children }: { children?: JSX.Element[] | JSX.Element }) => {
   return <FieldStyles>{children}</FieldStyles>;
 };
 

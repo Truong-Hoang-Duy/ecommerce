@@ -36,11 +36,12 @@ const InputStyles = styled.div<PropsStyledInput>`
   }
 `;
 
-const Input: React.FC<PropsInput & React.HTMLAttributes<HTMLInputElement>> = ({
+const Input: React.FC<PropsInput & React.HTMLAttributes<HTMLInputElement> & any> = ({
   name = 'fullname',
   type = 'text',
   children,
   control,
+  className = 'input',
   ...props
 }) => {
   const { field } = useController({
@@ -51,7 +52,7 @@ const Input: React.FC<PropsInput & React.HTMLAttributes<HTMLInputElement>> = ({
 
   return (
     <InputStyles hasIcon={children ? true : false}>
-      <input id={name} type={type} {...field} {...props} />
+      <input id={name} type={type} {...field} {...props} className={className} />
       {children ? <div className="input-icon">{children}</div> : null}
     </InputStyles>
   );
